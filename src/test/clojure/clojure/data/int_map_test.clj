@@ -257,3 +257,14 @@
 
 (defspec prop-dense-all-set-algebra-operators-equivalent 1e5
   (all-set-algebra-operators-equivalent? i/dense-int-set))
+
+(deftest int-map-empty-singleton
+  (is (identical? (i/int-map) (i/int-map))))
+
+(deftest int-map-empty
+  (doseq [example-meta [nil {} {:a 1 :b 2}]
+          example-int-map [(i/int-map) (i/int-map 1 1) (i/int-map 1 2 3 4)]]
+    (let [imap (with-meta example-int-map example-meta)
+          e (empty imap)]
+      (and (is (= (i/int-map) e))
+           (is (= (meta e) example-meta))))))

@@ -46,7 +46,8 @@
     then
     else))
 
-(declare ->transient-int-map)
+(declare ->transient-int-map
+         ^:private EMPTY-INT-MAP)
 
 (deftype PersistentIntMap
   [^INode root
@@ -241,8 +242,8 @@
         epoch'
         meta)))
 
-  (empty [this]
-    (PersistentIntMap. Nodes$Empty/EMPTY 0 nil))
+  (empty [_]
+    (with-meta EMPTY-INT-MAP meta))
 
   clojure.lang.IEditableCollection
   (asTransient [this]
@@ -295,6 +296,8 @@
 
   (invoke [this k default]
     (.valAt this k default)))
+
+(def ^:private EMPTY-INT-MAP (PersistentIntMap. Nodes$Empty/EMPTY 0 nil))
 
 (deftype TransientIntMap
   [^INode root
@@ -399,16 +402,16 @@
 (defn int-map
   "Creates an integer map that can only have non-negative integers as keys."
   ([]
-     (PersistentIntMap. Nodes$Empty/EMPTY 0 nil))
+     EMPTY-INT-MAP)
   ([a b]
-     (assoc (int-map) a b))
+     (assoc EMPTY-INT-MAP a b))
   ([a b & rest]
-     (apply assoc (int-map) a b rest)))
+     (apply assoc EMPTY-INT-MAP a b rest)))
 
 (defn merge-with
   "Merges together two int-maps, using `f` to resolve value conflicts."
   ([f]
-     (int-map))
+     EMPTY-INT-MAP)
   ([f a b]
      (let [a' (if (instance? TransientIntMap a)
                 (persistent! a)
@@ -423,7 +426,7 @@
 (defn merge
   "Merges together two int-maps, giving precedence to values from the right-most map."
   ([]
-     (int-map))
+     EMPTY-INT-MAP)
   ([a b]
      (merge-with (fn [_ b] b) a b))
   ([a b & rest]
